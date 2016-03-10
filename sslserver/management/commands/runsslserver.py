@@ -90,7 +90,6 @@ class Command(runserver.Command):
 
     def check_certs(self, key_file, cert_file):
         # TODO: maybe validate these? wrap_socket doesn't...
-
         if not os.path.exists(key_file):
             raise CommandError("Can't find key at %s" % key_file)
         if not os.path.exists(cert_file):
@@ -101,8 +100,9 @@ class Command(runserver.Command):
     def inner_run(self, *args, **options):
         # Django did a shitty job abstracting this.
 
-        key_file = options.get("key")
-        cert_file = options.get("certificate")
+        cert_file = os.path.join(default_ssl_files_dir(), "development.crt")
+        key_file = os.path.join(default_ssl_files_dir(), "development.key")
+
         self.check_certs(key_file, cert_file)
 
         from django.conf import settings
@@ -113,7 +113,6 @@ class Command(runserver.Command):
         quit_command = (sys.platform == 'win32') and 'CTRL-BREAK' or 'CONTROL-C'
 
         self.stdout.write("Validating models...\n\n")
-        self.check(display_num_errors=True)
         self.stdout.write((
             "%(started_at)s\n"
             "Django version %(version)s, using settings %(settings)r\n"
